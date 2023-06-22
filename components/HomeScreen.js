@@ -1,7 +1,8 @@
-import { View, Text, TouchableOpacity, StyleSheet, Image, FlatList, Pressable, Modal } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, FlatList, Pressable, Modal, ToastAndroid, ScrollView } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { Items, COLOURS } from '../data/database';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 const HomeScreen = ({ navigation }) => {
     const [data, setData] = useState([]);
@@ -55,6 +56,7 @@ const HomeScreen = ({ navigation }) => {
         try {
             await AsyncStorage.setItem('cartItems', JSON.stringify(itemArray));
             console.log('Item Added Successfully to cart');
+            ToastAndroid.show('Add to favorite successfully list', ToastAndroid.LONG)
             navigation.navigate('Home');
         } catch (error) {
             console.error(error);
@@ -85,6 +87,8 @@ const HomeScreen = ({ navigation }) => {
                 }
 
                 await AsyncStorage.setItem('cartItems', JSON.stringify(array));
+                ToastAndroid.show('Remove successfully', ToastAndroid.LONG)
+
                 getDataFromDB();
             }
             setCart(array)
@@ -161,24 +165,34 @@ const HomeScreen = ({ navigation }) => {
                                     checkInCart(data.id) ? toggleModal(data.id) : addToCart(data.id)
                                 }}
                                 style={{
-                                    backgroundColor: cart.includes(data.id) ? COLOURS.red : COLOURS.blue,
-                                    paddingHorizontal: 10,
                                     paddingVertical: 5,
                                     borderRadius: 5,
                                     marginTop: 5,
-                                    width: 70,
-                                    alignItems: 'center'
+                                    width: 45
                                 }}
                             >
-                                <Text
-                                    style={{
-                                        color: COLOURS.white,
-                                        fontSize: 12,
-                                        fontWeight: '600',
-                                    }}
-                                >
-                                    {cart.includes(data.id) ? 'remove' : 'add'}
-                                </Text>
+                                {cart.includes(data.id) ? (
+                                    <AntDesign
+                                        name='heart'
+                                        style={{
+                                            fontSize: 18,
+                                            color: COLOURS.red,
+                                            padding: 12,
+                                            backgroundColor: COLOURS.white,
+                                            borderRadius: 10,
+                                        }}
+                                    />
+                                ) : (
+                                    <AntDesign name='hearto'
+                                        style={{
+                                            fontSize: 18,
+                                            color: COLOURS.backgroundDark,
+                                            padding: 12,
+                                            backgroundColor: COLOURS.white,
+                                            borderRadius: 10,
+                                        }} />
+                                )}
+
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -191,11 +205,12 @@ const HomeScreen = ({ navigation }) => {
     };
 
     return (
-        <View
+        <ScrollView
             style={{
                 padding: 16,
             }}
         >
+
             <View
                 style={{
                     flexDirection: 'row',
@@ -217,18 +232,48 @@ const HomeScreen = ({ navigation }) => {
                             letterSpacing: 1,
                         }}
                     >
-                        Products
+                        Chi lan
                     </Text>
                 </View>
             </View>
             <FlatList
-                data={data}
+                data={data.filter((data) => data.category === 'chilan')}
                 renderItem={({ item }) => <ProductCard data={item} />}
                 style={{
-                    marginBottom: 16
                 }}
             />
-        </View>
+            <View
+                style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                }}
+            >
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                    }}
+                >
+                    <Text
+                        style={{
+                            fontSize: 18,
+                            color: COLOURS.black,
+                            fontWeight: '500',
+                            letterSpacing: 1,
+                        }}
+                    >
+                        Phi điệp
+                    </Text>
+                </View>
+            </View>
+            <FlatList
+                data={data.filter((data) => data.category === 'phidiep')}
+                renderItem={({ item }) => <ProductCard data={item} />}
+                style={{
+                }}
+            />
+        </ScrollView>
     );
 };
 
@@ -274,11 +319,12 @@ const styles = StyleSheet.create({
     },
     imageItem: {
         width: '30%',
-        height: '80%',
-        resizeMode: 'contain',
+        height: '100%',
+        marginRight: 10,
+        resizeMode: 'contain'
     },
     textItem: {
-        fontSize: 12,
+        fontSize: 14,
         color: COLOURS.black,
         fontWeight: '600',
         marginBottom: 2,
